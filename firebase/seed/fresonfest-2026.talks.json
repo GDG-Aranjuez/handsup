@@ -1,0 +1,110 @@
+{
+  "rooms": [
+    {
+      "id": "auditorio",
+      "name": "Auditorio"
+    },
+    {
+      "id": "sala-17",
+      "name": "Sala 17"
+    }
+  ],
+  "talks": [
+    {
+      "code": "A4EEQ",
+      "title": "La primera misión: conseguir tu trabajo en tecnología",
+      "speakers": "Arantxa Delgado Ruiz",
+      "room": "auditorio",
+      "start": "2026-10-24T10:00:00+02:00",
+      "end": "2026-10-24T10:45:00+02:00"
+    },
+    {
+      "code": "9G6DK",
+      "title": "OpenClaw todo el mundo te enseña a usarlo, nadie a hacerlo",
+      "speakers": "Máximo Fernández Núñez",
+      "room": "auditorio",
+      "start": "2026-10-24T10:45:00+02:00",
+      "end": "2026-10-24T11:10:00+02:00"
+    },
+    {
+      "code": "SQ7YT",
+      "title": "Los caminos del desarrollador son impredecibles",
+      "speakers": "Oliver Ramírez Cáceres",
+      "room": "auditorio",
+      "start": "2026-10-24T11:35:00+02:00",
+      "end": "2026-10-24T12:25:00+02:00"
+    },
+    {
+      "code": "T33J6",
+      "title": "Workshop CTF + CTF",
+      "speakers": "Nacho Fernandez Diez y Carlos Bolaños",
+      "room": "sala-17",
+      "start": "2026-10-24T11:35:00+02:00",
+      "end": "2026-10-24T12:25:00+02:00"
+    },
+    {
+      "code": "SF9H3",
+      "title": "Breaking Facial Recognition Systems with Real-Time Deepfake Injection",
+      "speakers": "Sergio Mahía",
+      "room": "auditorio",
+      "start": "2026-10-24T12:25:00+02:00",
+      "end": "2026-10-24T13:10:00+02:00"
+    },
+    {
+      "code": "TA54D",
+      "title": "El mito de la productividad tóxica",
+      "speakers": "Nicolás Patarino",
+      "room": "auditorio",
+      "start": "2026-10-24T13:10:00+02:00",
+      "end": "2026-10-24T14:00:00+02:00"
+    },
+    {
+      "code": "DG4UX",
+      "title": "Corriente Senior: El arte de volar sin caer",
+      "speakers": "David Martinez",
+      "room": "auditorio",
+      "start": "2026-10-24T15:15:00+02:00",
+      "end": "2026-10-24T16:00:00+02:00"
+    },
+    {
+      "code": "WMCD3",
+      "title": "Coding Dojo: Rescatando webs inaccesibles paso a paso",
+      "speakers": "Sergi Olives",
+      "room": "sala-17",
+      "start": "2026-10-24T15:15:00+02:00",
+      "end": "2026-10-24T16:00:00+02:00"
+    },
+    {
+      "code": "V929Q",
+      "title": "Mesa redonda",
+      "speakers": "",
+      "room": "auditorio",
+      "start": "2026-10-24T16:00:00+02:00",
+      "end": "2026-10-24T16:25:00+02:00"
+    },
+    {
+      "code": "XE8YE",
+      "title": "Accesibilidad y neurodivergencia: No todo el mundo navega igual",
+      "speakers": "Mía Salazar",
+      "room": "auditorio",
+      "start": "2026-10-24T16:50:00+02:00",
+      "end": "2026-10-24T17:35:00+02:00"
+    },
+    {
+      "code": "EJGHH",
+      "title": "Escuela de HechicerIA",
+      "speakers": "Laura Morillo-Velarde Rodríguez",
+      "room": "sala-17",
+      "start": "2026-10-24T16:50:00+02:00",
+      "end": "2026-10-24T17:35:00+02:00"
+    },
+    {
+      "code": "E76D7",
+      "title": "Sin managers, sin reuniones, sin problemas",
+      "speakers": "Sofía Lescano Carroll",
+      "room": "auditorio",
+      "start": "2026-10-24T17:35:00+02:00",
+      "end": "2026-10-24T18:20:00+02:00"
+    }
+  ]
+}

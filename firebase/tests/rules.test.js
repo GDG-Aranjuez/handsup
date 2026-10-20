@@ -586,7 +586,10 @@ describe('user preferences', () => {
     await assertFails(getDoc(doc(attendee('u2'), 'users/u1')));
   });
 
-  it('config is never readable', async () => {
-    await assertFails(getDoc(doc(superadmin(), 'config/superadmins')));
+  it('only superadmins can read the superadmin list, nobody can write it', async () => {
+    await assertSucceeds(getDoc(doc(superadmin(), 'config/superadmins')));
+    await assertFails(getDoc(doc(organizer(), 'config/superadmins')));
+    await assertFails(getDoc(doc(attendee('u1'), 'config/superadmins')));
+    await assertFails(setDoc(doc(superadmin(), 'config/superadmins'), { emails: ['x@y.z'] }));
   });
 });

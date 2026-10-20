@@ -22,3 +22,6 @@ keystore.properties
 .env
 .env.*
 !.env.example
+test-results/
+playwright-report/
+.svelte-kit/

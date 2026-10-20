@@ -78,8 +78,10 @@ service cloud.firestore {
 
     // ---------- config ----------
 
+    // Only a superadmin can read the list (lets the app detect the role); nobody can write it.
     match /config/{doc} {
-      allow read, write: if false;
+      allow get: if doc == 'superadmins' && isSuperadmin();
+      allow list, write: if false;
     }
 
     // ---------- per-device preferences ----------

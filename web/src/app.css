@@ -1,0 +1,104 @@
+@import 'tailwindcss';
+
+/* Tokens. Brand/accent colours are injected per Event on <html> (see lib/state.svelte.ts). */
+:root {
+  --brand: #d91e5b;
+  --on-brand: #ffffff;
+  --brand-text: #b3124a;
+  --accent: #1e6ad9;
+  --on-accent: #ffffff;
+  --accent-text: #1855b0;
+
+  --surface: #ffffff;
+  --surface-2: #f4f4f7;
+  --ink: #14141a;
+  --muted: #5d5d6b;
+  --line: #e3e3ea;
+  --ok: #17794a;
+  --warn: #8a5a00;
+  color-scheme: light dark;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --surface: #14141a;
+    --surface-2: #1d1d26;
+    --ink: #f3f3f7;
+    --muted: #a6a6b5;
+    --line: #2d2d3a;
+    --ok: #55d08b;
+    --warn: #f0b95a;
+  }
+}
+
+@theme inline {
+  --color-brand: var(--brand);
+  --color-on-brand: var(--on-brand);
+  --color-brand-text: var(--brand-text);
+  --color-accent: var(--accent);
+  --color-on-accent: var(--on-accent);
+  --color-accent-text: var(--accent-text);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-ok: var(--ok);
+  --color-warn: var(--warn);
+  --font-sans: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+}
+
+html {
+  background: var(--surface);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  -webkit-text-size-adjust: 100%;
+}
+body {
+  min-height: 100dvh;
+  margin: 0;
+  padding-bottom: env(safe-area-inset-bottom);
+}
+:focus-visible {
+  outline: 3px solid var(--accent-text);
+  outline-offset: 2px;
+}
+button,
+a,
+input,
+textarea,
+select {
+  -webkit-tap-highlight-color: transparent;
+}
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+@layer components {
+  .card {
+    @apply rounded-2xl border border-line bg-surface p-4;
+  }
+  .btn {
+    @apply inline-flex min-h-11 items-center justify-center gap-2 rounded-xl px-4 text-[15px] font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-50;
+  }
+  .btn-primary {
+    @apply inline-flex min-h-11 items-center justify-center gap-2 rounded-xl px-4 text-[15px] font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-50 bg-brand text-on-brand hover:brightness-95 active:brightness-90;
+  }
+  .btn-ghost {
+    @apply inline-flex min-h-11 items-center justify-center gap-2 rounded-xl px-4 text-[15px] font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-50 border border-line bg-surface text-ink hover:bg-surface-2;
+  }
+  .btn-danger {
+    @apply inline-flex min-h-11 items-center justify-center gap-2 rounded-xl px-4 text-[15px] font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-50 border border-line bg-surface text-[#c0262d] hover:bg-surface-2;
+  }
+  .chip {
+    @apply inline-flex min-h-8 items-center gap-1 rounded-full bg-surface-2 px-3 text-sm font-medium text-ink;
+  }
+  .input {
+    @apply min-h-11 w-full rounded-xl border border-line bg-surface px-3 text-base text-ink placeholder:text-muted;
+  }
+  .label {
+    @apply mb-1 block text-sm font-medium text-muted;
+  }
+}
