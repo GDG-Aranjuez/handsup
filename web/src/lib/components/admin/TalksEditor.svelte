@@ -137,6 +137,7 @@
             readonly={editing !== 'new'}
             maxlength="5"
           />
+          {#if code && !isValidTalkCode(code)}<p class="mt-1 text-xs text-warn" role="alert">{t('setup.codeHelp')}</p>{/if}
         </div>
       </div>
       <div class="flex gap-2">

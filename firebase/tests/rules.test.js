@@ -61,7 +61,7 @@ async function seed(fn) {
 beforeAll(async () => {
   env = await initializeTestEnvironment({
     projectId: 'handsup-demo',
-    firestore: { rules: readFileSync('firestore.rules', 'utf8'), host: '127.0.0.1', port: 8080 },
+    firestore: { rules: readFileSync('firestore.rules', 'utf8'), host: '127.0.0.1', port: 8180 },
   });
 });
 afterAll(async () => env.cleanup());
@@ -225,9 +225,11 @@ describe('pseudonyms', () => {
     await assertFails(updateDoc(doc(db, `events/${EVENT}/attendees/u1`), { pseudonym: 'Free Rider' }));
   });
 
-  it('cannot read claim docs', async () => {
+  it('only organizers can read claim docs', async () => {
     await join(attendee('u1'), 'u1', 'Marie Curie');
     await assertFails(getDoc(doc(attendee('u1'), `events/${EVENT}/pseudonyms/marie curie`)));
+    await assertSucceeds(getDocs(collection(organizer(), `events/${EVENT}/pseudonyms`)));
+    await assertFails(getDocs(collection(organizer('other@example.com'), `events/${EVENT}/pseudonyms`)));
   });
 });
 
@@ -523,6 +525,17 @@ describe('organizer moderation', () => {
     );
     // ended without endedAt is rejected (TALK has none yet)
     await assertFails(updateDoc(doc(db, `events/${EVENT}/talks/${TALK}`), { state: 'ended' }));
+  });
+
+  it('deletes attendees\' vote docs (purge / event deletion)', async () => {
+    await seedQuestion('q1', { authorUid: 'u1' });
+    await vote(attendee('u2'), 'u2', 'q1');
+    await assertSucceeds(getDocs(collection(organizer(), `events/${EVENT}/talks/${TALK}/votes`)));
+    await assertFails(getDocs(collection(attendee('u9'), `events/${EVENT}/talks/${TALK}/votes`)));
+    await assertSucceeds(deleteDoc(doc(organizer(), `events/${EVENT}/talks/${TALK}/votes/u2_q1`)));
+    await vote(attendee('u3'), 'u3', 'q1');
+    await assertFails(deleteDoc(doc(organizer('other@example.com'), `events/${EVENT}/talks/${TALK}/votes/u3_q1`)));
+    await assertFails(deleteDoc(doc(attendee('u4'), `events/${EVENT}/talks/${TALK}/votes/u3_q1`)));
   });
 
   it('deletes questions and the event', async () => {

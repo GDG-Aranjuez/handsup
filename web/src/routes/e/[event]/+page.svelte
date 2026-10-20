@@ -125,7 +125,7 @@
             <span class="min-w-0 flex-1">
               <span class="block font-medium leading-snug">{talk.title}</span>
               <span class="block text-sm text-muted">
-                {talk.speakers}{#if ctx.rooms.length > 1 && talk.speakers} · {/if}{#if ctx.rooms.length > 1}{roomName(talk.roomId)}{/if}
+                {[talk.speakers, ctx.rooms.length > 1 ? roomName(talk.roomId) : ''].filter(Boolean).join(' · ')}
               </span>
             </span>
             {#if talk.state === 'live'}

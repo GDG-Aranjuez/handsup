@@ -25,3 +25,10 @@ keystore.properties
 test-results/
 playwright-report/
 .svelte-kit/
+mobile/iosApp/build/
+mobile/iosApp/Config.local.xcconfig
+**/xcuserdata/
+**/*.xcuserstate
+mobile/build/
+mobile/*/build/
+firebase/node_modules/

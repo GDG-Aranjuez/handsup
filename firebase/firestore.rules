@@ -156,16 +156,17 @@ service cloud.firestore {
 
         // One doc per vote: id = {uid}_{questionId}. Ties each counter change to exactly one vote doc.
         match /votes/{voteId} {
-          allow read: if signedIn() && resource.data.uid == request.auth.uid;
+          allow read: if isOrganizer(eventId) || (signedIn() && resource.data.uid == request.auth.uid);
           allow create: if signedIn()
             && request.resource.data.keys().hasOnly(['uid', 'q'])
             && request.resource.data.uid == request.auth.uid
             && voteId == request.auth.uid + '_' + request.resource.data.q
             && getAfter(questionPath(eventId, talkId, request.resource.data.q)).data.votes
               == get(questionPath(eventId, talkId, request.resource.data.q)).data.votes + 1;
-          allow delete: if signedIn() && resource.data.uid == request.auth.uid
-            && getAfter(questionPath(eventId, talkId, resource.data.q)).data.votes
-              == get(questionPath(eventId, talkId, resource.data.q)).data.votes - 1;
+          allow delete: if isOrganizer(eventId)
+            || (signedIn() && resource.data.uid == request.auth.uid
+              && getAfter(questionPath(eventId, talkId, resource.data.q)).data.votes
+                == get(questionPath(eventId, talkId, resource.data.q)).data.votes - 1);
         }
 
         function validNewQuestion(e, t, q) {
@@ -184,7 +185,7 @@ service cloud.firestore {
             && after.lastQuestionAt == request.time
             && before.lastQuestionAt <= request.time - duration.value(30, 's')
             && after.qCount == before.qCount + 1
-            && q == request.auth.uid + '_' + string(after.qCount);
+            && q == request.auth.uid + '_' + string(int(after.qCount));
         }
 
         function organizerUpdate(e) {
@@ -273,7 +274,7 @@ service cloud.firestore {
 
       // Claim docs make pseudonyms unique per event: create-only, so a clash is a denied write.
       match /pseudonyms/{key} {
-        allow read: if false;
+        allow read: if isOrganizer(eventId);
         allow create: if signedIn()
           && request.resource.data.keys().hasOnly(['uid', 'name'])
           && request.resource.data.uid == request.auth.uid

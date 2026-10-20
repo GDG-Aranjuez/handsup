@@ -281,18 +281,20 @@
       {/if}
     </form>
 
-    <div class="flex items-center gap-2" role="tablist">
-      <button role="tab" aria-selected={tab === 'all'} class="chip {tab === 'all' ? '!bg-ink !text-surface' : ''}" onclick={() => (tab = 'all')} data-testid="tab-all">
-        {t('talk.tabAll')} · {publicQs.length}
-      </button>
-      <button role="tab" aria-selected={tab === 'mine'} class="chip {tab === 'mine' ? '!bg-ink !text-surface' : ''}" onclick={() => (tab = 'mine')} data-testid="tab-mine">
-        {t('talk.tabMine')} · {mineQs.length}
-      </button>
+    <div class="flex flex-col gap-2">
+      <div class="flex items-center gap-2" role="tablist">
+        <button role="tab" aria-selected={tab === 'all'} class="chip {tab === 'all' ? '!bg-ink !text-surface' : ''}" onclick={() => (tab = 'all')} data-testid="tab-all">
+          {t('talk.tabAll')} · {publicQs.length}
+        </button>
+        <button role="tab" aria-selected={tab === 'mine'} class="chip {tab === 'mine' ? '!bg-ink !text-surface' : ''}" onclick={() => (tab = 'mine')} data-testid="tab-mine">
+          {t('talk.tabMine')} · {mineQs.length}
+        </button>
+      </div>
       {#if tab === 'all'}
-        <span class="ml-auto flex gap-1" role="group" aria-label={t('talk.sort')}>
+        <div class="flex gap-1" role="group" aria-label={t('talk.sort')}>
           <button class="chip {sortMode === 'votes' ? '!bg-brand !text-on-brand' : ''}" onclick={() => (sortChoice = 'votes')}>{t('talk.sortVotes')}</button>
           <button class="chip {sortMode === 'time' ? '!bg-brand !text-on-brand' : ''}" onclick={() => (sortChoice = 'time')}>{t('talk.sortTime')}</button>
-        </span>
+        </div>
       {/if}
     </div>
 

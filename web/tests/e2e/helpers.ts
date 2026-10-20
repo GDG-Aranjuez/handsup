@@ -11,7 +11,10 @@ export async function newUser(browser: Browser, opts: { desktop?: boolean } = {}
     timezoneId: 'Europe/Madrid',
     ...(opts.desktop ? { viewport: { width: 1280, height: 900 } } : { viewport: { width: 412, height: 915 }, isMobile: true, hasTouch: true }),
   });
-  return { ctx, page: await ctx.newPage() };
+  const page = await ctx.newPage();
+  page.on('console', (m) => m.type() === 'error' && console.log('[browser error]', m.text().slice(0, 300)));
+  page.on('pageerror', (e) => console.log('[page error]', e.message.slice(0, 300)));
+  return { ctx, page };
 }
 
 export async function login(page: Page, email = 'organizer@handsup.test') {
