@@ -32,3 +32,4 @@ mobile/iosApp/Config.local.xcconfig
 mobile/build/
 mobile/*/build/
 firebase/node_modules/
+!.env.development
