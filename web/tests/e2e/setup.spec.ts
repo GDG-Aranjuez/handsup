@@ -30,7 +30,7 @@ test.describe.serial('event setup', () => {
     await expect(form.getByTestId('save-talk')).toBeEnabled();
     await form.getByTestId('save-talk').click();
     await expect(page.getByTestId('setup-talk')).toHaveCount(1);
-    expect((await adminDoc(`events/${SLUG}/talks/KEYNT`))?.title).toBe('Keynote de apertura');
+    await expect.poll(async () => (await adminDoc(`events/${SLUG}/talks/KEYNT`))?.title).toBe('Keynote de apertura');
 
     // JSON import: invalid first, then valid
     await page.getByTestId('setup-tab-data').click();
@@ -56,7 +56,7 @@ test.describe.serial('event setup', () => {
     await page.getByTestId('brand-primary').fill('#1a73e8');
     await page.getByTestId('save-branding').click();
     await expect.poll(async () => (await adminDoc(`events/${SLUG}`))?.branding?.primary).toBe('#1a73e8');
-    expect((await adminDoc(`events/${SLUG}`))?.name).toBe('Partner Conf 2027');
+    await expect.poll(async () => (await adminDoc(`events/${SLUG}`))?.name).toBe('Partner Conf 2027');
     await page.getByTestId('brand-primary').fill('red');
     await expect(page.getByTestId('save-branding')).toBeDisabled();
 
