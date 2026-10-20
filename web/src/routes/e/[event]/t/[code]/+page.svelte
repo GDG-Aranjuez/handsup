@@ -39,7 +39,6 @@
   let delivery = $state<Delivery>('read');
   let cooldownUntil = $state(0);
   let sending = $state(0);
-  let busy = $state<Set<string>>(new Set());
   let editingName = $state(false);
   let nameDraft = $state('');
 
@@ -122,18 +121,12 @@
     }
   }
 
-  async function guarded(id: string, fn: () => Promise<void>) {
-    if (busy.has(id)) return;
-    busy = new Set(busy).add(id);
-    try {
-      await fn();
-    } catch (err) {
-      toast(errorText(err), 'error');
-    } finally {
-      const next = new Set(busy);
-      next.delete(id);
-      busy = next;
-    }
+  // Actions on one question run in tap order: a second tap while the first write is
+  // still pending is queued (not dropped), and decides from the optimistic state.
+  const queues = new Map<string, Promise<void>>();
+  function guarded(id: string, fn: () => Promise<void>) {
+    const run = (queues.get(id) ?? Promise.resolve()).then(fn).catch((err) => toast(errorText(err), 'error'));
+    queues.set(id, run);
   }
 
   const toggleVote = (q: Question) =>

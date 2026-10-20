@@ -64,6 +64,8 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 
 @Composable
 fun HomeScreen(app: AppModel) {
@@ -206,7 +208,6 @@ fun TalkScreen(app: AppModel, route: Route.Talk) {
     var delivery by remember { mutableStateOf(Delivery.READ) }
     var cooldownUntil by remember { mutableLongStateOf(0L) }
     var sending by remember { mutableIntStateOf(0) }
-    var busy by remember { mutableStateOf<Set<String>>(emptySet()) }
     var editingName by remember { mutableStateOf(false) }
     var nameDraft by remember { mutableStateOf("") }
     var retry by remember { mutableIntStateOf(0) }
@@ -265,11 +266,15 @@ fun TalkScreen(app: AppModel, route: Route.Talk) {
         }
     }
 
+    // Actions on one question run in tap order: a second tap while the first write is still pending
+    // is queued (not dropped).
+    val locks = remember { mutableMapOf<String, Mutex>() }
     fun guarded(id: String, block: suspend () -> Unit) {
-        if (id in busy) return
-        busy = busy + id
+        val lock = locks.getOrPut(id) { Mutex() }
         scope.launch {
-            try { block() } catch (e: CancellationException) { throw e } catch (e: Throwable) { app.toast(errorText(e)) } finally { busy = busy - id }
+            lock.withLock {
+                try { block() } catch (e: CancellationException) { throw e } catch (e: Throwable) { app.toast(errorText(e)) }
+            }
         }
     }
 
