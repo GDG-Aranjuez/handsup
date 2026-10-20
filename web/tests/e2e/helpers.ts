@@ -23,7 +23,7 @@ export async function login(page: Page, email = 'organizer@handsup.test') {
   await expect(form).toBeVisible();
   await form.locator('input[type=email]').fill(email);
   await form.locator('input[type=password]').fill('handsup-test');
-  await form.getByRole('button').click();
+  await form.getByRole('button', { name: 'Entrar' }).click();
   await expect(page.getByTestId('admin-email')).toBeVisible();
 }
 

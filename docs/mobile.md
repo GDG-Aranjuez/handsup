@@ -48,8 +48,10 @@ Run on a simulator from Xcode, or:
 
 ```sh
 xcodebuild -project iosApp.xcodeproj -scheme iosApp -sdk iphonesimulator \
-  -destination 'platform=iOS Simulator,name=iPhone 16' -derivedDataPath build CODE_SIGNING_ALLOWED=NO build
+  -destination 'platform=iOS Simulator,name=iPhone 16' -derivedDataPath build build
 ```
+
+Simulator builds are signed ad hoc (do **not** pass `CODE_SIGNING_ALLOWED=NO`: Firebase Auth needs the keychain entitlement and fails silently without it).
 
 `Config.xcconfig` holds the Firebase options and defaults to the emulators (`127.0.0.1`); override in `Config.local.xcconfig` (git-ignored). The Kotlin framework is built by the *Build Kotlin framework* phase; Firebase comes from Swift Package Manager.
 

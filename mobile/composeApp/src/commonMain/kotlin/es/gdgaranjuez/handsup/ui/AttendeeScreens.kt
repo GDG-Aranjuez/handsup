@@ -328,9 +328,10 @@ fun TalkScreen(app: AppModel, route: Route.Talk) {
                                 }
                             }, enabled = nameDraft.trim().length >= 2, tag = "name-save")
                         } else {
-                            MutedText(t("talk.askingAs"))
-                            Text(m.pseudonym, fontWeight = FontWeight.Bold, modifier = Modifier.testTag("my-pseudonym"))
-                            Spacer(Modifier.weight(1f))
+                            Column(Modifier.weight(1f)) {
+                                MutedText(t("talk.askingAs"), fontSize = 12)
+                                Text(m.pseudonym, fontWeight = FontWeight.Bold, maxLines = 1, overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis, modifier = Modifier.testTag("my-pseudonym"))
+                            }
                             ToggleChip(t("talk.reroll"), false, {
                                 scope.launch {
                                     try { me = m.copy(pseudonym = app.backend.changePseudonym(eventId, m.uid)) }

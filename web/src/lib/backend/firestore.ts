@@ -3,6 +3,8 @@ import {
   linkWithPopup,
   signInAnonymously,
   signInWithCredential,
+  createUserWithEmailAndPassword,
+  sendEmailVerification,
   signInWithEmailAndPassword,
   signInWithPopup,
   signOut as fbSignOut,
@@ -42,7 +44,7 @@ import {
   type Room,
   type Talk,
 } from '../domain/types';
-import { USE_EMULATOR, firebase } from './firebase';
+import { firebase } from './firebase';
 import { BackendError, type AuthUser, type ExportRow, type QaBackend, type QuestionScope } from './types';
 
 const date = (v: unknown): Date => (v instanceof Timestamp ? v.toDate() : new Date(0));
@@ -212,8 +214,12 @@ export function createFirestoreBackend(): QaBackend {
       }
     },
     async signInEmail(email, password) {
-      if (!USE_EMULATOR) throw new BackendError('denied', 'email sign-in is only available with the emulator');
-      return toUser((await guard(signInWithEmailAndPassword(auth, email, password))).user);
+      return toUser((await guard(signInWithEmailAndPassword(auth, email.trim(), password))).user);
+    },
+    async registerEmail(email, password) {
+      const cred = await guard(createUserWithEmailAndPassword(auth, email.trim(), password));
+      await guard(sendEmailVerification(cred.user));
+      return toUser(cred.user);
     },
     async signOut() {
       await fbSignOut(auth);

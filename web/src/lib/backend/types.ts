@@ -43,8 +43,9 @@ export interface QaBackend {
   ensureAnonymous(): Promise<AuthUser>;
   signInGoogle(): Promise<AuthUser>;
   linkGoogle(): Promise<AuthUser>;
-  /** Email + password sign-in. Only enabled against the emulator. */
   signInEmail(email: string, password: string): Promise<AuthUser>;
+  /** Creates the account and sends a verification e-mail; the rules need a verified e-mail. */
+  registerEmail(email: string, password: string): Promise<AuthUser>;
   signOut(): Promise<void>;
   isSuperadmin(): Promise<boolean>;
   isOrganizer(eventId: string): Promise<boolean>;
