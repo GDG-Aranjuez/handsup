@@ -17,6 +17,8 @@ concurrency:
 
 jobs:
   build:
+    # Skipped until the repository variables from docs/deploy.md exist (no Firebase project, nothing to deploy).
+    if: ${{ vars.VITE_FIREBASE_PROJECT_ID != '' }}
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
