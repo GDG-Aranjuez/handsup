@@ -1,0 +1,24 @@
+node_modules/
+.DS_Store
+.idea/
+*.iml
+build/
+.gradle/
+.kotlin/
+local.properties
+.svelte-kit/
+web/build/
+*.log
+firebase-debug.log
+firestore-debug.log
+ui-debug.log
+.firebase/
+# secrets
+google-services.json
+GoogleService-Info.plist
+*.jks
+*.keystore
+keystore.properties
+.env
+.env.*
+!.env.example

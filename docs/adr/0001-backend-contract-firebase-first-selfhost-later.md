@@ -1,0 +1,3 @@
+# Clients talk to a backend contract; Firebase first, self-hosted server later
+
+Both the KMP and web clients depend on a `QaBackend` interface instead of calling Firebase directly. Firestore is the first implementation because it ships fastest for the FresON Fest 2026 deadline. A later Ktor + SQLite + SSE server, packaged as one Docker image and reusing the KMP models, is the planned self-hosted implementation. Calling Firebase directly would be quicker now but would make that migration a rewrite of both clients. PocketBase was considered and rejected: it needs a server for the first event and has no KMP SDK.

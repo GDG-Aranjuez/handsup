@@ -1,0 +1,284 @@
+rules_version = '2';
+
+// handsup security rules. There are no Cloud Functions (ADR 0002), so every
+// invariant lives here: rate limit, one vote per attendee, pseudonym uniqueness,
+// organizer isolation and the speaker link. See docs/data-model.md.
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ---------- helpers ----------
+
+    function root() { return /databases/$(database)/documents; }
+    function signedIn() { return request.auth != null; }
+    function verifiedEmail() {
+      return signedIn() && 'email' in request.auth.token && request.auth.token.email_verified == true;
+    }
+    function myEmail() { return request.auth.token.email.lower(); }
+
+    // config/superadmins { emails: [...] } is written once from the console.
+    function isSuperadmin() {
+      return verifiedEmail()
+        && exists(/databases/$(database)/documents/config/superadmins)
+        && myEmail() in get(/databases/$(database)/documents/config/superadmins).data.emails;
+    }
+    function isOrganizer(eventId) {
+      return verifiedEmail()
+        && (isSuperadmin()
+          || exists(/databases/$(database)/documents/events/$(eventId)/organizers/$(myEmail())));
+    }
+
+    function eventPath(e) { return /databases/$(database)/documents/events/$(e); }
+    function talkPath(e, t) { return /databases/$(database)/documents/events/$(e)/talks/$(t); }
+    function attendeePath(e, u) { return /databases/$(database)/documents/events/$(e)/attendees/$(u); }
+    function questionPath(e, t, q) {
+      return /databases/$(database)/documents/events/$(e)/talks/$(t)/questions/$(q);
+    }
+    function votePath(e, t, v) { return /databases/$(database)/documents/events/$(e)/talks/$(t)/votes/$(v); }
+
+    function validColor(c) { return c is string && c.matches('^#[0-9a-fA-F]{6}$'); }
+
+    function validEvent(d) {
+      return d.keys().hasOnly(['name', 'branding', 'settings', 'createdAt'])
+        && d.name is string && d.name.size() >= 1 && d.name.size() <= 80
+        && d.branding.keys().hasOnly(['logo', 'primary', 'accent', 'tagline'])
+        && validColor(d.branding.primary) && validColor(d.branding.accent)
+        && (!('logo' in d.branding) || (d.branding.logo is string && d.branding.logo.size() <= 150000))
+        && (!('tagline' in d.branding) || (d.branding.tagline is string && d.branding.tagline.size() <= 120))
+        && d.settings.keys().hasOnly(['voting', 'defaultSort', 'preApproval', 'graceMin'])
+        && d.settings.voting is bool
+        && d.settings.preApproval is bool
+        && d.settings.defaultSort in ['votes', 'time']
+        && d.settings.graceMin is int && d.settings.graceMin >= 0 && d.settings.graceMin <= 240;
+    }
+
+    function validTalk(d) {
+      return d.keys().hasOnly(['title', 'speakers', 'roomId', 'start', 'end', 'state', 'questionsClosed', 'endedAt'])
+        && d.title is string && d.title.size() >= 1 && d.title.size() <= 160
+        && d.speakers is string && d.speakers.size() <= 200
+        && d.roomId is string
+        && d.start is timestamp && d.end is timestamp
+        && d.state in ['scheduled', 'live', 'ended']
+        && d.questionsClosed is bool
+        && (d.state != 'ended' || d.endedAt is timestamp);
+    }
+
+    function validPseudonym(n) {
+      return n is string && n.size() >= 2 && n.size() <= 30 && n.matches('^[^/]+$');
+    }
+
+    // The talk accepts questions and votes while live, or within the grace period.
+    function windowOpen(e, t) {
+      let talk = get(talkPath(e, t)).data;
+      let ev = get(eventPath(e)).data;
+      return talk.questionsClosed == false
+        && (talk.state == 'live'
+          || (talk.state == 'ended'
+            && request.time < talk.endedAt + duration.value(ev.settings.graceMin, 'm')));
+    }
+
+    // ---------- config ----------
+
+    match /config/{doc} {
+      allow read, write: if false;
+    }
+
+    // ---------- per-device preferences ----------
+
+    match /users/{uid} {
+      allow read: if signedIn() && request.auth.uid == uid;
+      allow write: if signedIn() && request.auth.uid == uid
+        && request.resource.data.keys().hasOnly(['pseudonym'])
+        && validPseudonym(request.resource.data.pseudonym);
+    }
+
+    // ---------- speaker link ----------
+
+    // Written by organizers, never readable by clients.
+    match /speakerKeys/{key} {
+      allow read: if false;
+      allow create, update: if isOrganizer(request.resource.data.eventId)
+        && request.resource.data.keys().hasOnly(['eventId', 'talkId'])
+        && key.size() >= 20;
+      allow delete: if isOrganizer(resource.data.eventId);
+    }
+
+    // The speaker proves knowledge of the key once; the key never reaches a readable doc.
+    match /speakerSessions/{uid} {
+      allow read: if signedIn() && request.auth.uid == uid;
+      allow create, update: if signedIn() && request.auth.uid == uid
+        && request.resource.data.keys().hasOnly(['key', 'eventId', 'talkId'])
+        && exists(/databases/$(database)/documents/speakerKeys/$(request.resource.data.key))
+        && get(/databases/$(database)/documents/speakerKeys/$(request.resource.data.key)).data.eventId == request.resource.data.eventId
+        && get(/databases/$(database)/documents/speakerKeys/$(request.resource.data.key)).data.talkId == request.resource.data.talkId;
+    }
+
+    // ---------- events ----------
+
+    match /events/{eventId} {
+      allow read: if signedIn();
+      allow create: if isSuperadmin() && eventId.matches('^[a-z0-9-]{3,40}$') && validEvent(request.resource.data);
+      allow update: if isOrganizer(eventId) && validEvent(request.resource.data);
+      allow delete: if isOrganizer(eventId);
+
+      match /organizers/{orgEmail} {
+        allow read: if isOrganizer(eventId);
+        allow create, update: if isSuperadmin() && orgEmail == orgEmail.lower();
+        allow delete: if isSuperadmin();
+      }
+
+      match /rooms/{roomId} {
+        allow read: if signedIn();
+        allow create, update: if isOrganizer(eventId)
+          && request.resource.data.keys().hasOnly(['name', 'liveTalkId', 'order'])
+          && request.resource.data.name is string && request.resource.data.name.size() <= 60;
+        allow delete: if isOrganizer(eventId);
+      }
+
+      match /talks/{talkId} {
+        allow read: if signedIn();
+        allow create, update: if isOrganizer(eventId)
+          && talkId.matches('^[ABCDEFGHJKMNPQRSTUVWXYZ23456789]{5}$')
+          && validTalk(request.resource.data);
+        allow delete: if isOrganizer(eventId);
+
+        match /questions/{qId} {
+          allow read: if signedIn()
+            && (resource.data.status in ['open', 'onstage', 'answered', 'followup']
+              || resource.data.authorUid == request.auth.uid
+              || isOrganizer(eventId));
+          allow create: if signedIn() && windowOpen(eventId, talkId) && validNewQuestion(eventId, talkId, qId);
+          allow update: if signedIn()
+            && (organizerUpdate(eventId) || authorUpdate() || voteCounterUpdate(eventId, talkId, qId) || speakerAnswer(eventId, talkId));
+          allow delete: if isOrganizer(eventId);
+        }
+
+        // One doc per vote: id = {uid}_{questionId}. Ties each counter change to exactly one vote doc.
+        match /votes/{voteId} {
+          allow read: if signedIn() && resource.data.uid == request.auth.uid;
+          allow create: if signedIn()
+            && request.resource.data.keys().hasOnly(['uid', 'q'])
+            && request.resource.data.uid == request.auth.uid
+            && voteId == request.auth.uid + '_' + request.resource.data.q
+            && getAfter(questionPath(eventId, talkId, request.resource.data.q)).data.votes
+              == get(questionPath(eventId, talkId, request.resource.data.q)).data.votes + 1;
+          allow delete: if signedIn() && resource.data.uid == request.auth.uid
+            && getAfter(questionPath(eventId, talkId, resource.data.q)).data.votes
+              == get(questionPath(eventId, talkId, resource.data.q)).data.votes - 1;
+        }
+
+        function validNewQuestion(e, t, q) {
+          let d = request.resource.data;
+          let before = get(attendeePath(e, request.auth.uid)).data;
+          let after = getAfter(attendeePath(e, request.auth.uid)).data;
+          return d.keys().hasOnly(['text', 'delivery', 'authorUid', 'pseudonym', 'status', 'votes', 'createdAt'])
+            && d.text is string && d.text.size() >= 1 && d.text.size() <= 280
+            && d.delivery in ['speak', 'read']
+            && d.authorUid == request.auth.uid
+            && d.pseudonym == before.pseudonym
+            && d.votes == 0
+            && d.createdAt == request.time
+            && d.status == (get(eventPath(e)).data.settings.preApproval ? 'pending' : 'open')
+            // rate limit: one question per 30 s, enforced through the attendee doc
+            && after.lastQuestionAt == request.time
+            && before.lastQuestionAt <= request.time - duration.value(30, 's')
+            && after.qCount == before.qCount + 1
+            && q == request.auth.uid + '_' + string(after.qCount);
+        }
+
+        function organizerUpdate(e) {
+          let changed = request.resource.data.diff(resource.data).affectedKeys();
+          return isOrganizer(e)
+            && changed.hasOnly(['status', 'authorUid', 'answer'])
+            && request.resource.data.status in ['pending', 'open', 'onstage', 'answered', 'followup', 'hidden', 'withdrawn']
+            && (!('authorUid' in changed) || request.resource.data.authorUid == '');
+        }
+
+        function authorUpdate() {
+          let changed = request.resource.data.diff(resource.data).affectedKeys();
+          return resource.data.authorUid == request.auth.uid
+            && resource.data.status in ['open', 'pending']
+            && ((changed.hasOnly(['status']) && request.resource.data.status == 'withdrawn')
+              || (changed.hasOnly(['delivery']) && request.resource.data.delivery in ['speak', 'read'])
+              || (changed.hasOnly(['text', 'delivery'])
+                && resource.data.votes == 0
+                && request.resource.data.text is string
+                && request.resource.data.text.size() >= 1 && request.resource.data.text.size() <= 280
+                && request.resource.data.delivery in ['speak', 'read']));
+        }
+
+        function voteCounterUpdate(e, t, q) {
+          let changed = request.resource.data.diff(resource.data).affectedKeys();
+          let v = votePath(e, t, request.auth.uid + '_' + q);
+          return changed.hasOnly(['votes'])
+            && resource.data.status in ['open', 'onstage']
+            && get(eventPath(e)).data.settings.voting == true
+            && windowOpen(e, t)
+            && ((request.resource.data.votes == resource.data.votes + 1 && existsAfter(v) && !exists(v))
+              || (request.resource.data.votes == resource.data.votes - 1 && exists(v) && !existsAfter(v)));
+        }
+
+        function speakerAnswer(e, t) {
+          let sPath = /databases/$(database)/documents/speakerSessions/$(request.auth.uid);
+          let changed = request.resource.data.diff(resource.data).affectedKeys();
+          return exists(sPath)
+            && get(sPath).data.eventId == e
+            && get(sPath).data.talkId == t
+            && changed.hasOnly(['answer'])
+            && resource.data.status == 'followup'
+            && request.resource.data.answer.keys().hasOnly(['text', 'at'])
+            && request.resource.data.answer.text is string
+            && request.resource.data.answer.text.size() >= 1
+            && request.resource.data.answer.text.size() <= 1500
+            && request.resource.data.answer.at == request.time;
+        }
+      }
+
+      // The speaker key for a talk. Only organizers can read it.
+      match /talkSecrets/{talkId} {
+        allow read, write: if isOrganizer(eventId);
+      }
+
+      // Per-event attendee profile: pseudonym + rate limit state.
+      match /attendees/{uid} {
+        allow read: if signedIn() && (request.auth.uid == uid || isOrganizer(eventId));
+        allow create: if signedIn() && request.auth.uid == uid
+          && request.resource.data.keys().hasOnly(['pseudonym', 'lastQuestionAt', 'qCount'])
+          && validPseudonym(request.resource.data.pseudonym)
+          && request.resource.data.qCount == 0
+          && request.resource.data.lastQuestionAt is timestamp
+          && request.resource.data.lastQuestionAt < request.time - duration.value(1, 'h')
+          && existsAfter(/databases/$(database)/documents/events/$(eventId)/pseudonyms/$(request.resource.data.pseudonym.lower()))
+          && getAfter(/databases/$(database)/documents/events/$(eventId)/pseudonyms/$(request.resource.data.pseudonym.lower())).data.uid == uid;
+        allow update: if signedIn() && request.auth.uid == uid
+          && (isSubmitBump() || isReroll(eventId, uid));
+        allow delete: if isOrganizer(eventId);
+
+        function isSubmitBump() {
+          let changed = request.resource.data.diff(resource.data).affectedKeys();
+          return changed.hasOnly(['lastQuestionAt', 'qCount'])
+            && request.resource.data.lastQuestionAt == request.time
+            && request.resource.data.qCount == resource.data.qCount + 1;
+        }
+        function isReroll(e, u) {
+          let changed = request.resource.data.diff(resource.data).affectedKeys();
+          let claim = /databases/$(database)/documents/events/$(e)/pseudonyms/$(request.resource.data.pseudonym.lower());
+          return changed.hasOnly(['pseudonym'])
+            && validPseudonym(request.resource.data.pseudonym)
+            && existsAfter(claim)
+            && getAfter(claim).data.uid == u;
+        }
+      }
+
+      // Claim docs make pseudonyms unique per event: create-only, so a clash is a denied write.
+      match /pseudonyms/{key} {
+        allow read: if false;
+        allow create: if signedIn()
+          && request.resource.data.keys().hasOnly(['uid', 'name'])
+          && request.resource.data.uid == request.auth.uid
+          && validPseudonym(request.resource.data.name)
+          && key == request.resource.data.name.lower();
+        allow delete: if (signedIn() && resource.data.uid == request.auth.uid) || isOrganizer(eventId);
+      }
+    }
+  }
+}

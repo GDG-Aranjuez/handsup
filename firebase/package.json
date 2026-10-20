@@ -1,0 +1,15 @@
+{
+  "name": "handsup-firebase",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "emulators": "firebase emulators:start --project handsup-demo",
+    "test": "firebase emulators:exec --only firestore --project handsup-demo \"vitest run\"",
+    "seed": "node seed.mjs"
+  },
+  "devDependencies": {
+    "@firebase/rules-unit-testing": "^4.0.1",
+    "firebase": "^11.0.0",
+    "vitest": "^2.1.0"
+  }
+}
