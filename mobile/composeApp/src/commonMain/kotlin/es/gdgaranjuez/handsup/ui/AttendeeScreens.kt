@@ -118,7 +118,8 @@ fun EventScreen(app: AppModel, route: Route.Event) {
     PlatformBackHandler(app.nav.canGoBack) { app.nav.pop() }
     Column(Modifier.fillMaxSize()) {
         ScreenTopBar(st.event?.name ?: "…", onBack = if (app.nav.canGoBack) ({ app.nav.pop() }) else null, actions = { LangToggle(app); Spacer(Modifier.width(8.dp)) })
-        if (st.loaded && st.event == null) {
+        if (!st.loaded) { LoadingBox(); return@Column }
+        if (st.event == null) {
             ContentColumn { Text(t("event.notFound"), fontSize = 18.sp, fontWeight = FontWeight.SemiBold, modifier = Modifier.testTag("event-not-found")) }
             return@Column
         }
