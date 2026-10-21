@@ -64,6 +64,7 @@ target.build_configurations.each do |config|
   s['CURRENT_PROJECT_VERSION'] = '1'
   s['GENERATE_INFOPLIST_FILE'] = 'NO'
   s['ENABLE_USER_SCRIPT_SANDBOXING'] = 'NO'
+  s['EXCLUDED_ARCHS[sdk=iphonesimulator*]'] = 'x86_64' # the Kotlin framework targets Apple Silicon simulators only
   s['CODE_SIGN_STYLE'] = 'Automatic'
   s['DEVELOPMENT_TEAM'] = '$(HANDSUP_TEAM_ID)'
   s['FRAMEWORK_SEARCH_PATHS'] = ['$(inherited)', '$(SRCROOT)/../composeApp/build/xcode-frameworks/$(CONFIGURATION)/$(SDK_NAME)']

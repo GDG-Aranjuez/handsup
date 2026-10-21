@@ -175,7 +175,7 @@
 </svelte:head>
 
 <main class="mx-auto flex max-w-2xl flex-col gap-4 px-4 py-4">
-  <a href="{base}/e/{eventId}?browse=1" class="inline-flex w-fit items-center gap-1 text-sm text-muted hover:text-ink">
+  <a href="{base}/e/{eventId}?browse=1" class="inline-flex min-h-11 w-fit items-center gap-1 text-sm text-muted hover:text-ink">
     <Icon name="back" size={16} />{t('talk.allTalks')}
   </a>
 

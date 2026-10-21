@@ -20,6 +20,8 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -79,7 +81,8 @@ fun ContentColumn(
 ) {
     Box(modifier.fillMaxWidth(), contentAlignment = Alignment.TopCenter) {
         Column(
-            Modifier.widthIn(max = 640.dp).fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp),
+            // scrollable so forms stay reachable with the keyboard open on small screens
+            Modifier.widthIn(max = 640.dp).fillMaxWidth().verticalScroll(rememberScrollState()).padding(horizontal = 16.dp, vertical = 12.dp),
             verticalArrangement = Arrangement.spacedBy(spacing),
             content = content,
         )
@@ -217,6 +220,9 @@ fun DeliveryBadge(delivery: Delivery, modifier: Modifier = Modifier) {
 
 @Composable
 fun ScreenTopBar(title: String, onBack: (() -> Unit)? = null, actions: @Composable RowScope.() -> Unit = {}) {
+    // same max width as the content below, so tablets line the bar up with the column
+    Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.TopCenter) {
+    Box(Modifier.widthIn(max = 672.dp).fillMaxWidth()) {
     TopAppBar(
         title = { Text(title, fontWeight = FontWeight.Bold, maxLines = 1, overflow = TextOverflow.Ellipsis) },
         navigationIcon = {
@@ -232,6 +238,8 @@ fun ScreenTopBar(title: String, onBack: (() -> Unit)? = null, actions: @Composab
             titleContentColor = MaterialTheme.colorScheme.onSurface,
         ),
     )
+    }
+    }
 }
 
 @Composable

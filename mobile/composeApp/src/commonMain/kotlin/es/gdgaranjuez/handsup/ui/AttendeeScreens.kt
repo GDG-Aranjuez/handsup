@@ -453,9 +453,9 @@ private fun DeliveryChoice(d: Delivery, selected: Boolean, onClick: () -> Unit, 
     ) {
         Row(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalAlignment = Alignment.CenterVertically) {
             AppIconView(if (d == Delivery.SPEAK) AppIcon.Mic else AppIcon.Volume, size = 18.dp, tint = if (selected) MaterialTheme.colorScheme.onSurface else tk.muted)
-            Text(t("delivery.${d.wire}.short"), fontWeight = FontWeight.SemiBold, fontSize = 14.sp, color = if (selected) MaterialTheme.colorScheme.onSurface else tk.muted)
+            Text(t("delivery.${d.wire}.short"), fontWeight = FontWeight.SemiBold, fontSize = 14.sp, textAlign = androidx.compose.ui.text.style.TextAlign.Center, color = if (selected) MaterialTheme.colorScheme.onSurface else tk.muted)
         }
-        Text(t("delivery.${d.wire}.hint"), fontSize = 12.sp, color = tk.muted)
+        Text(t("delivery.${d.wire}.hint"), fontSize = 12.sp, textAlign = androidx.compose.ui.text.style.TextAlign.Center, color = tk.muted)
     }
 }
 
