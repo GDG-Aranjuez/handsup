@@ -1,13 +1,13 @@
-// Build configuration. Defaults target the local Firebase emulators.
-// Override locally in Config.local.xcconfig (git-ignored), e.g. for the real Firebase project.
-HANDSUP_USE_EMULATOR = YES
+// Build configuration. Defaults target the production Firebase project (public identifiers).
+// To use the local emulators, copy Config.local.xcconfig.example to Config.local.xcconfig (git-ignored).
+HANDSUP_USE_EMULATOR = NO
 HANDSUP_EMULATOR_HOST = 127.0.0.1
 HANDSUP_DEFAULT_EVENT = fresonfest-2026
 // Careful: xcconfig treats // as a comment, so the URL scheme slashes are written via $()
 HANDSUP_WEB_BASE_URL = https:/$()/gdg-aranjuez.github.io/handsup
-HANDSUP_FIREBASE_APP_ID = 1:000000000000:ios:0000000000000000
-HANDSUP_FIREBASE_API_KEY = demo-key
-HANDSUP_FIREBASE_PROJECT_ID = handsup-demo
-HANDSUP_FIREBASE_SENDER_ID = 000000000000
+HANDSUP_FIREBASE_APP_ID = 1:55603056127:ios:9bca0b158fe09ee191ebca
+HANDSUP_FIREBASE_API_KEY = AIzaSyCSvTd8NmyX2DXm79pVI-my0U_t1YRVjzs
+HANDSUP_FIREBASE_PROJECT_ID = handsup-5f58e
+HANDSUP_FIREBASE_SENDER_ID = 55603056127
 
 #include? "Config.local.xcconfig"

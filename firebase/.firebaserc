@@ -1,1 +1,6 @@
-{ "projects": { "default": "handsup-demo" } }
+{
+  "projects": {
+    "default": "handsup-demo",
+    "prod": "handsup-5f58e"
+  }
+}

@@ -6,7 +6,7 @@ plugins {
     alias(libs.plugins.composeCompiler)
 }
 
-// Build-time configuration, all optional (defaults target the local emulators):
+// Build-time configuration, all optional (defaults target the production Firebase project):
 //   ./gradlew :androidApp:assembleDebug -Phandsup.useEmulator=true
 //   handsup.firebase.apiKey / appId / projectId, handsup.defaultEvent, handsup.webBaseUrl, handsup.googleWebClientId
 fun prop(name: String, default: String): String = (findProperty("handsup.$name") as String?) ?: default
@@ -28,9 +28,9 @@ android {
 
         buildConfigField("boolean", "USE_EMULATOR", prop("useEmulator", "false"))
         buildConfigField("String", "EMULATOR_HOST", "\"${prop("emulatorHost", "10.0.2.2")}\"")
-        buildConfigField("String", "FIREBASE_API_KEY", "\"${prop("firebase.apiKey", "demo-key")}\"")
-        buildConfigField("String", "FIREBASE_APP_ID", "\"${prop("firebase.appId", "1:000000000000:android:0000000000000000")}\"")
-        buildConfigField("String", "FIREBASE_PROJECT_ID", "\"${prop("firebase.projectId", "handsup-demo")}\"")
+        buildConfigField("String", "FIREBASE_API_KEY", "\"${prop("firebase.apiKey", "AIzaSyDPkM3wx1CHnHL6xCQcELLoJoB8YawiXmA")}\"")
+        buildConfigField("String", "FIREBASE_APP_ID", "\"${prop("firebase.appId", "1:55603056127:android:57079ae1a2e18dd991ebca")}\"")
+        buildConfigField("String", "FIREBASE_PROJECT_ID", "\"${prop("firebase.projectId", "handsup-5f58e")}\"")
         buildConfigField("String", "DEFAULT_EVENT", "\"${prop("defaultEvent", "fresonfest-2026")}\"")
         buildConfigField("String", "WEB_BASE_URL", "\"${prop("webBaseUrl", "https://gdg-aranjuez.github.io/handsup")}\"")
         buildConfigField("String", "GOOGLE_WEB_CLIENT_ID", "\"${prop("googleWebClientId", "")}\"")

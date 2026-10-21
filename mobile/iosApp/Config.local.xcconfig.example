@@ -1,0 +1,7 @@
+// Copy to Config.local.xcconfig to run against the local Firebase emulators (cd firebase && pnpm emulators).
+HANDSUP_USE_EMULATOR = YES
+HANDSUP_EMULATOR_HOST = 127.0.0.1
+HANDSUP_FIREBASE_APP_ID = 1:000000000000:ios:0000000000000000
+HANDSUP_FIREBASE_API_KEY = demo-key
+HANDSUP_FIREBASE_PROJECT_ID = handsup-demo
+HANDSUP_FIREBASE_SENDER_ID = 000000000000

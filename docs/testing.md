@@ -18,6 +18,8 @@ pnpm seed --reset               # terminal 2: FresON Fest 2026 + users
 cd ../web && pnpm dev           # http://localhost:5173
 ```
 
+Mobile against the emulators: Android `-Phandsup.useEmulator=true`; iOS copy `mobile/iosApp/Config.local.xcconfig.example` to `Config.local.xcconfig`.
+
 Seed users (password `handsup-test`): `organizer@handsup.test` (organizer of FresON), `superadmin@handsup.test`.
 
 ## Manual rehearsal (before the event)

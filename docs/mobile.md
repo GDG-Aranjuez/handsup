@@ -19,8 +19,8 @@ JDK 17+, Android SDK (API 37, `local.properties` → `sdk.dir=…`), Xcode 16+ f
 
 ```sh
 cd mobile
+./gradlew :androidApp:assembleRelease                              # installable APK, production Firebase project
 ./gradlew :androidApp:assembleDebug -Phandsup.useEmulator=true     # against the local Firebase emulators
-./gradlew :androidApp:assembleRelease                              # installable APK
 ```
 
 Build properties (all optional; pass with `-P` or in `~/.gradle/gradle.properties`):
@@ -28,7 +28,7 @@ Build properties (all optional; pass with `-P` or in `~/.gradle/gradle.propertie
 | Property | Default | |
 | --- | --- | --- |
 | `handsup.useEmulator` | `false` | talk to the emulators (`10.0.2.2` from an Android emulator) |
-| `handsup.firebase.apiKey` / `appId` / `projectId` | demo values | your Firebase Android app |
+| `handsup.firebase.apiKey` / `appId` / `projectId` | production project | the Firebase Android app |
 | `handsup.defaultEvent` | `fresonfest-2026` | event opened on launch |
 | `handsup.webBaseUrl` | `https://gdg-aranjuez.github.io/handsup` | used for links to share |
 | `handsup.googleWebClientId` | empty | OAuth *web* client id; enables the Google button |
@@ -53,7 +53,7 @@ xcodebuild -project iosApp.xcodeproj -scheme iosApp -sdk iphonesimulator \
 
 Simulator builds are signed ad hoc (do **not** pass `CODE_SIGNING_ALLOWED=NO`: Firebase Auth needs the keychain entitlement and fails silently without it).
 
-`Config.xcconfig` holds the Firebase options and defaults to the emulators (`127.0.0.1`); override in `Config.local.xcconfig` (git-ignored). The Kotlin framework is built by the *Build Kotlin framework* phase; Firebase comes from Swift Package Manager.
+`Config.xcconfig` holds the Firebase options and defaults to the production project. To use the emulators (`127.0.0.1`), copy `Config.local.xcconfig.example` to `Config.local.xcconfig` (git-ignored). The Kotlin framework is built by the *Build Kotlin framework* phase; Firebase comes from Swift Package Manager.
 
 Distribution without App Store review: archive in Xcode and upload to App Store Connect for **internal TestFlight** testers only (team members). Public TestFlight and the App Store need review and are post-event.
 

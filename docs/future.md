@@ -7,3 +7,4 @@ Deliberately out of scope for the FresON Fest 2026 launch.
 - **Cloud Functions**: LLM guideline check on new Questions, scheduled 90-day purge, push notifications for Answers.
 - **App stores**: Google Play and the Apple App Store after the event. Until then, Android is a signed APK and iOS is internal TestFlight only.
 - **Self-hosted server**: Ktor + SQLite + SSE in one Docker image behind `QaBackend` (see ADR 0001).
+- **Restrict API keys** to the Android/iOS apps and the Pages origin in Google Cloud Console.
