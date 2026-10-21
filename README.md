@@ -4,7 +4,7 @@ Live Q&A for conference talks. Attendees scan a QR code and ask questions during
 
 | | |
 | --- | --- |
-| **Attendees** | web app (no install, PWA) · Android / iOS app (Kotlin Multiplatform) |
+| **Attendees** | web app ([gdg-aranjuez.github.io/handsup](https://gdg-aranjuez.github.io/handsup/), no install, PWA) · Android APK ([latest release](https://github.com/GDG-Aranjuez/handsup/releases/latest)) · iOS app (Kotlin Multiplatform) |
 | **Organizers** | same apps: live queue, talk control, event setup, room screen, speaker links |
 | **Backend** | Firebase (Firestore + Auth) with security rules, no Cloud Functions; a self-hosted server is a planned second implementation ([ADR 0001](docs/adr/0001-backend-contract-firebase-first-selfhost-later.md)) |
 

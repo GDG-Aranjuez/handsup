@@ -8,7 +8,6 @@ service cloud.firestore {
 
     // ---------- helpers ----------
 
-    function root() { return /databases/$(database)/documents; }
     function signedIn() { return request.auth != null; }
     function verifiedEmail() {
       return signedIn() && 'email' in request.auth.token && request.auth.token.email_verified == true;
@@ -148,7 +147,7 @@ service cloud.firestore {
             && (resource.data.status in ['open', 'onstage', 'answered', 'followup']
               || resource.data.authorUid == request.auth.uid
               || isOrganizer(eventId));
-          allow create: if signedIn() && windowOpen(eventId, talkId) && validNewQuestion(eventId, talkId, qId);
+          allow create: if signedIn() && windowOpen(eventId, talkId) && validNewQuestion(eventId, qId);
           allow update: if signedIn()
             && (organizerUpdate(eventId) || authorUpdate() || voteCounterUpdate(eventId, talkId, qId) || speakerAnswer(eventId, talkId));
           allow delete: if isOrganizer(eventId);
@@ -169,7 +168,7 @@ service cloud.firestore {
                 == get(questionPath(eventId, talkId, resource.data.q)).data.votes - 1);
         }
 
-        function validNewQuestion(e, t, q) {
+        function validNewQuestion(e, q) {
           let d = request.resource.data;
           let before = get(attendeePath(e, request.auth.uid)).data;
           let after = getAfter(attendeePath(e, request.auth.uid)).data;

@@ -33,7 +33,7 @@ android {
         buildConfigField("String", "FIREBASE_PROJECT_ID", "\"${prop("firebase.projectId", "handsup-5f58e")}\"")
         buildConfigField("String", "DEFAULT_EVENT", "\"${prop("defaultEvent", "fresonfest-2026")}\"")
         buildConfigField("String", "WEB_BASE_URL", "\"${prop("webBaseUrl", "https://gdg-aranjuez.github.io/handsup")}\"")
-        buildConfigField("String", "GOOGLE_WEB_CLIENT_ID", "\"${prop("googleWebClientId", "")}\"")
+        buildConfigField("String", "GOOGLE_WEB_CLIENT_ID", "\"${prop("googleWebClientId", "55603056127-251mei7hji614ll4dirad43h4085f3vq.apps.googleusercontent.com")}\"")
     }
 
     buildFeatures { buildConfig = true }
